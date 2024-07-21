@@ -72,7 +72,7 @@ function Tree (array) {
 
             //find the correct node
             while (currentNode !== null && currentNode.value !== value) {
-                parent = currentNode;
+                parentNode = currentNode;
                 if (value < currentNode.value) {
                     currentNode = currentNode.left;
                     direction = 'left';
@@ -87,7 +87,7 @@ function Tree (array) {
             }
 
             //remove node with no child
-            if (currentNode.left && currentNode.right === null) {
+            if (currentNode.left === null && currentNode.right === null) {
                 if (direction === 'left') {
                     parentNode.left = null
                 } else {
@@ -103,9 +103,20 @@ function Tree (array) {
                 }
             } else {
                 let minValueNode = findMinValueNode(currentNode.right);
+                console.log(minValueNode)
                 currentNode.value = minValueNode.value;
-                minValueNode = null;
-                this.deleteItem(minValueNode.value);
+
+                let parentNodeForMinValue = currentNode.right;
+        
+                while (parentNodeForMinValue.left !== null && parentNodeForMinValue.left !== minValueNode) {
+                    parentNodeForMinValue = parentNodeForMinValue.left;
+                }
+
+                if (parentNodeForMinValue.left === minValueNode) {
+                    parentNodeForMinValue.left = minValueNode.right;
+                } else {
+                    parentNodeForMinValue.right = minValueNode.right;
+                }
             }
         },
         find: function (value) {
@@ -244,21 +255,18 @@ function Node (value, left = null, right = null) {
     }
 }
 
-
-
-
-const prettyPrint = (node, prefix = "", isLeft = true) => {
+  const prettyPrint = (node, prefix = "", isLeft = true) => {////
     if (node === null) {
-      return;
+        return;
     }
     if (node.right !== null) {
-      prettyPrint(node.right, `${prefix}${isLeft ? "│   " : "    "}`, false);
+        prettyPrint(node.right, `${prefix}${isLeft ? "│   " : "    "}`, false);
     }
-    console.log(`${prefix}${isLeft ? "└── " : "┌── "}${node.data}`);
+    console.log(`${prefix}${isLeft ? "└── " : "┌── "}${node.value}`);
     if (node.left !== null) {
-      prettyPrint(node.left, `${prefix}${isLeft ? "    " : "│   "}`, true);
+        prettyPrint(node.left, `${prefix}${isLeft ? "    " : "│   "}`, true);
     }
-  };
+};
  
 
 function sortNumbers(array) {
@@ -312,3 +320,50 @@ tree.postOrder(tree.root, (node) => console.log(node.value));
 
 console.log("In-order:");
 tree.inOrder(tree.root, (node) => console.log(node.value));
+
+/////////////////////////////////////////////////////////////////////////////////////////////
+// Create a new tree with a specific set of values
+const customTree = Tree([10, 5, 20, 3, 7, 15, 25]);
+
+console.log("Custom Tree Structure:");
+prettyPrint(customTree.root);
+
+// Insert more values and print the tree structure
+customTree.insert(12);
+customTree.insert(8);
+customTree.insert(30);
+
+console.log("Custom Tree after insertions:");
+prettyPrint(customTree.root);
+
+// Rebalance the tree and print the tree structure
+customTree.rebalance();
+
+console.log("Custom Tree after rebalancing:");
+prettyPrint(customTree.root);
+
+// Delete nodes and print the tree structure
+customTree.deleteItem(10); // Delete root
+customTree.deleteItem(7);  // Delete leaf
+customTree.deleteItem(25); // Delete node with one child
+
+console.log("Custom Tree after deletions:");
+prettyPrint(customTree.root);
+
+// Additional cases with empty and single-node trees
+const emptyTree = Tree([]);
+console.log("Empty Tree:");
+prettyPrint(emptyTree.root);
+
+const singleNodeTree = Tree([42]);
+console.log("Single Node Tree:");
+prettyPrint(singleNodeTree.root);
+
+// Test tree balance checks
+console.log("Empty Tree is balanced:", emptyTree.isBalanced());
+console.log("Single Node Tree is balanced:", singleNodeTree.isBalanced());
+
+// Test tree height and depth functions
+console.log("Height of custom tree:", customTree.height(customTree.root));
+console.log("Depth of node with value 15:", customTree.depth(customTree.find(15)));
+console.log("Depth of node with value 30:", customTree.depth(customTree.find(30)));
